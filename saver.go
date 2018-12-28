@@ -71,22 +71,32 @@ func beginLoop(l LogoFile) {
 	}
 	defer termbox.Close()
 	w, h := termbox.Size()
-	drawAt(w, h, l)
+
+	for {
+		drawAt(w, h, l)
+		switch ev := termbox.PollEvent(); ev.Type {
+		case termbox.EventKey:
+			if ev.Key == termbox.KeyEsc {
+				os.Exit(1)
+			}
+		case termbox.EventResize:
+			w, h = termbox.Size()
+		}
+		time.Sleep(time.Second)
+	}
 }
 
 func drawAt(xOffset int, yOffset int, l LogoFile) {
-	termbox.Clear(termbox.ColorWhite, termbox.ColorBlack)
+	termbox.Clear(termbox.ColorWhite, termbox.ColorDefault)
 	y := 0
 	for _, lines := range l.Data {
 		strlen := len(lines)
 		x := 0
 		for i := 0; i < strlen; i += 1 {
-			termbox.SetCell(x, y, lines[i], termbox.ColorWhite, termbox.ColorBlack)
+			termbox.SetCell(x, y, lines[i], termbox.ColorWhite, termbox.ColorDefault)
 			x += 1
 		}
 		y += 1
 	}
 	termbox.Flush()
-	time.Sleep(10 * time.Second)
-
 }
