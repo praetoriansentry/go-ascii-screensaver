@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"time"
+	"math/rand"
 
 	kingpin "gopkg.in/alecthomas/kingpin.v2"
 	"github.com/nsf/termbox-go"
@@ -70,28 +71,39 @@ func beginLoop(l LogoFile) {
 		log.Fatal(err)
 	}
 	defer termbox.Close()
+	rand.Seed(time.Now().Unix())
 	w, h := termbox.Size()
 
-	for {
-		drawAt(w, h, l)
-		switch ev := termbox.PollEvent(); ev.Type {
-		case termbox.EventKey:
-			if ev.Key == termbox.KeyEsc {
+	go func () {
+		for {
+			switch ev := termbox.PollEvent(); ev.Type {
+			case termbox.EventInterrupt:
 				os.Exit(1)
+			case termbox.EventKey:
+				if ev.Key == termbox.KeyEsc {
+					os.Exit(1)
+				}
+			case termbox.EventResize:
+				w, h = termbox.Size()
 			}
-		case termbox.EventResize:
-			w, h = termbox.Size()
 		}
+	}()
+
+	for {
+		wRange := w - l.MaxX
+		hRange := h - l.MaxY
+		drawAt(rand.Intn(wRange), rand.Intn(hRange), l)
 		time.Sleep(time.Second)
 	}
+
 }
 
 func drawAt(xOffset int, yOffset int, l LogoFile) {
 	termbox.Clear(termbox.ColorWhite, termbox.ColorDefault)
-	y := 0
+	y := yOffset
 	for _, lines := range l.Data {
 		strlen := len(lines)
-		x := 0
+		x := xOffset
 		for i := 0; i < strlen; i += 1 {
 			termbox.SetCell(x, y, lines[i], termbox.ColorWhite, termbox.ColorDefault)
 			x += 1
