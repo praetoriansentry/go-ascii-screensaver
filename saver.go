@@ -3,12 +3,12 @@ package main
 import (
 	"bufio"
 	"log"
+	"math/rand"
 	"os"
 	"time"
-	"math/rand"
 
-	kingpin "gopkg.in/alecthomas/kingpin.v2"
 	"github.com/nsf/termbox-go"
+	kingpin "gopkg.in/alecthomas/kingpin.v2"
 )
 
 var (
@@ -67,8 +67,7 @@ func beginLoop(l LogoFile) {
 	defer termbox.Close()
 	rand.Seed(time.Now().Unix())
 
-
-	go func () {
+	go func() {
 		for {
 			switch ev := termbox.PollEvent(); ev.Type {
 			case termbox.EventInterrupt:
