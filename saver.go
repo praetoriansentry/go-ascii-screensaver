@@ -2,7 +2,6 @@ package main
 
 import (
 	"bufio"
-	"fmt"
 	"log"
 	"os"
 	"time"
@@ -13,10 +12,6 @@ import (
 )
 
 var (
-	// debug   = kingpin.Flag("debug", "Enable debug mode.").Bool()
-	// timeout = kingpin.Flag("timeout", "Timeout waiting for ping.").Default("5s").OverrideDefaultFromEnvar("PING_TIMEOUT").Short('t').Duration()
-	// ip      = kingpin.Arg("ip", "IP address to ping.").Required().IP()
-	// count   = kingpin.Arg("count", "Number of packets to send").Int()
 	fileName = kingpin.Flag("text", "Ascii art file to use as screen saver").Required().Short('t').ExistingFile()
 )
 
@@ -32,7 +27,6 @@ func main() {
 	kingpin.Parse()
 	logoFile := readFile(*fileName)
 	parsedLogo := parseLogo(logoFile)
-	fmt.Println(parsedLogo)
 	beginLoop(parsedLogo)
 }
 
@@ -72,7 +66,7 @@ func beginLoop(l LogoFile) {
 	}
 	defer termbox.Close()
 	rand.Seed(time.Now().Unix())
-	w, h := termbox.Size()
+
 
 	go func () {
 		for {
@@ -83,17 +77,20 @@ func beginLoop(l LogoFile) {
 				if ev.Key == termbox.KeyEsc {
 					os.Exit(1)
 				}
-			case termbox.EventResize:
-				w, h = termbox.Size()
 			}
 		}
 	}()
 
 	for {
+		w, h := termbox.Size()
 		wRange := w - l.MaxX
 		hRange := h - l.MaxY
+		if wRange < 1 || hRange < 1 {
+			log.Fatal("Screen size is too small for graphic")
+		}
 		drawAt(rand.Intn(wRange), rand.Intn(hRange), l)
 		time.Sleep(time.Second)
+		termbox.Sync()
 	}
 
 }
