@@ -20,3 +20,5 @@ To use this, but your ascii art into a text file and run:
 go build saver.go
 ./saver -t logo.txt
 #+END_SRC
+
+To quit the saver, hit the escape key.
